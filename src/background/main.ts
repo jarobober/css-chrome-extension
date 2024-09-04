@@ -1,6 +1,7 @@
 import { onMessage, sendMessage } from 'webext-bridge/background'
 import type { Tabs } from 'webextension-polyfill'
 import { debuggerTasks } from './utils'
+import { DebuggerTransmitter } from './debuggerTransmitter'
 
 // only on dev mode
 if (import.meta.hot) {
@@ -22,7 +23,6 @@ if (USE_SIDE_PANEL) {
 }
 
 browser.runtime.onInstalled.addListener((): void => {
-  // eslint-disable-next-line no-console
   console.log('Extension installed')
 })
 
@@ -46,7 +46,6 @@ browser.tabs.onActivated.addListener(async ({ tabId }) => {
     return
   }
 
-  // eslint-disable-next-line no-console
   console.log('previous tab', tab)
   sendMessage('tab-prev', { title: tab.title }, { context: 'content-script', tabId })
 })
@@ -65,16 +64,17 @@ onMessage('get-current-tab', async () => {
   }
 })
 
+let transmitter
+
 function runEnableHover() {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const tab = tabs[0]
-    console.log('tab', tab)
-    sendMessage('START_HOVER_DEBUGGER', {}, { context: 'content-script', tabId: tab.id })
-    // chrome.debugger.attach({ tabId: tab.id }, '1.3', () => {
-    //   chrome.debugger.sendCommand({ tabId: tab.id }, 'DOM.enable')
-    //   chrome.debugger.sendCommand({ tabId: tab.id }, 'CSS.enable')
-
-    // })
+    if (tab.id) {
+      transmitter = DebuggerTransmitter.getInstance()
+      transmitter.attachDebugger(tab.id)
+      console.log('tab', tab)
+      sendMessage('START_HOVER_DEBUGGER', {}, { context: 'content-script', tabId: tab.id })
+    }
   })
 }
 
@@ -92,11 +92,7 @@ onMessage('ELEMENT_INFO', ({ data }) => {
   console.log('ELEMENT_INFO', data)
 })
 
-// onMessage('DEBUG_ELEMENT', (response) => {
-//   console.log('DEBUG_ELEMENT selector', response)
-//   // debuggerTasks(previousTabId, data)
-// })
-
+// native handling as in web-ext bridge lack of sender.tab?.id
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'hoveredElement') {
     console.log('?', message, sender)
