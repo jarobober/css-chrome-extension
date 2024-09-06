@@ -95,9 +95,9 @@ onMessage('ELEMENT_INFO', ({ data }) => {
 // native handling as in web-ext bridge lack of sender.tab?.id
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'hoveredElement') {
-    console.log('?', message, sender)
-    const selector = message.selector
-    const tabId = sender.tab?.id
-    debuggerTasks(tabId, selector)
+    // console.log('?', message, sender)
+    // const selector = message.selector
+    // const tabId = sender.tab?.id
+    // debuggerTasks(tabId, selector)
   }
 })
