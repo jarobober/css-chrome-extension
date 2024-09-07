@@ -88,8 +88,9 @@ onMessage('TOGGLE_HOVER', ({ data }) => {
   }
 })
 
-onMessage('ELEMENT_INFO', ({ data }) => {
-  console.log('ELEMENT_INFO', data)
+onMessage('INSPECT_ELEMENT', (data) => {
+  console.log('INSPECT_ELEMENT', data)
+  transmitter.inspectElement(data.data.selector)
 })
 
 // native handling as in web-ext bridge lack of sender.tab?.id

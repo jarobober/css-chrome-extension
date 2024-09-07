@@ -15,9 +15,9 @@ async function enableHover() {
 
 const elementData = ref({})
 
-onMessage('ELEMENT_INFO', async ({ data }) => {
+onMessage('SHOW_INSPECT_DATA', async ({ data }) => {
   console.log('data', data)
-  elementData.value = data.elementInfo
+  elementData.value = data.data
 })
 </script>
 

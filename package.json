@@ -75,5 +75,8 @@
   },
   "lint-staged": {
     "*": "eslint --fix"
+  },
+  "dependencies": {
+    "get-css-data": "^2.1.1"
   }
 }

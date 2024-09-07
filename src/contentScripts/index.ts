@@ -17,53 +17,33 @@ import { setupApp } from '~/logic/common-setup'
     console.log('startHoverDebugger')
     let clickedElement
     document.addEventListener('mouseover', (event) => {
+      event.preventDefault()
+      event.stopPropagation()
       const element = event.target
       if (clickedElement === element)
         return
-
       // Highlight the element
-      element.style.outline = '2px dashed grey'
+      element.style.outline = '1px dashed grey'
 
       // Remove the highlight when the mouse leaves
       element.addEventListener('mouseout', () => {
         if (clickedElement === element)
           return
-
         element.style.outline = ''
       }, { once: true })
-
-      console.log('element', element)
-
-      const selector = getUniqueSelector(element)
-
-      chrome.runtime.sendMessage({ type: 'hoveredElement', selector })
-
-      // getStylesFromStylesheet(element)
-
-      // console.log('!!!!!', { el: { ...element } })
-
-      // const elementInfo = {
-      //   tagName: element.tagName,
-      //   id: element.id,
-      //   classList: [...element.classList],
-      //   computedStyles: window.getComputedStyle(element),
-      //   styles: element.style.cssText,
-      //   cssRules: [],
-      // }
-
-      // console.log('elementInfo', elementInfo)
-
-      // sendMessage('ELEMENT_INFO', elementInfo, 'popup')
-
-      // send info to popup
     })
     document.addEventListener('click', (event) => {
+      event.preventDefault()
       if (clickedElement) {
         clickedElement.style.outline = ''
       }
       const element = event.target
       clickedElement = element
-      element.style.outline = '2px dashed red'
+      element.style.outline = '1px dashed red'
+
+      // !! now magic starts, send element info to sidebar !!
+      console.log('el', getUniqueSelector(element))
+      sendMessage('INSPECT_ELEMENT', { selector: getUniqueSelector(element) }, { context: 'background' })
     })
   }
 
